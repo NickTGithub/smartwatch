@@ -6,6 +6,8 @@ import time
 import digitalio
 import adafruit_gc9a01a
 
+time.sleep(1)
+
 displayio.release_displays()
 
 vib = digitalio.DigitalInOut(board.D0)
@@ -14,11 +16,11 @@ vib.value = True
 
 spi = board.SPI()
 
-display_bus = FourWire(spi,command=board.D7,chip_select=board.D6,reset=board.D6)
+display_bus = FourWire(spi,command=board.D6,chip_select=board.D7,reset=board.D2,)
 
 display = adafruit_gc9a01a.GC9A01A(display_bus,width=240,height=240,rotation=0)
 
-bitmap = displayio.Bitmap(100, 100, 1)
+bitmap = displayio.Bitmap(240, 240, 1)
 palette = displayio.Palette(1)
 palette[0] = 0xAA00AA
 
@@ -32,7 +34,7 @@ print('show')
 vib.value = False
 display.root_group = group
 
-time.sleep(10)
+time.sleep(5)
 vib.value = True
 time.sleep(0.25)
 print('doneee')
