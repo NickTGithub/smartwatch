@@ -28,6 +28,8 @@ tile_bg0 = displayio.TileGrid(bg,pixel_shader=palette)
 tile_bg1 = displayio.TileGrid(bg,pixel_shader=palette)
 tile_bg2 = displayio.TileGrid(bg,pixel_shader=palette)
 
+#put file path in parenthesis. Ex. image.bmp -->"/image.bmp"
+
 nando = displayio.OnDiskBitmap("/nando.bmp")
 tile_nando = displayio.TileGrid(nando, pixel_shader=nando.pixel_shader)
 group_nando = displayio.Group()
