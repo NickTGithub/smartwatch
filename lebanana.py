@@ -20,10 +20,6 @@ display_bus = FourWire(spi,command=board.D6,chip_select=board.D7,reset=board.D2,
 
 display = adafruit_gc9a01a.GC9A01A(display_bus,width=240,height=240,rotation=0)
 
-bg = displayio.Bitmap(240, 240, 1)
-palette = displayio.Palette(1)
-palette[0] = 0xAA00AA
-
 bitmap = displayio.OnDiskBitmap("/lebanana.bmp")
 
 tile_grid = displayio.TileGrid(bitmap, pixel_shader=bitmap.pixel_shader)
