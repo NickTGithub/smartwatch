@@ -231,10 +231,15 @@ def updateTimeLabels():
     if len(display_month) == 1:
         slash.x = 40
         day_tile.x = 55
+        hitbox_x2[4] = 44
+
     else:
         slash.x = 55
         day_tile.x = 70
+        hitbox_x2[4] = 69
 
+
+        
     weekday = weekday_list[weekday_index]
     if len(weekday) == 3:
         weekday_tile.x = 183
@@ -315,9 +320,18 @@ def checkevent():
 ### END EVENTS ###
 
 ### SET TIME ###
-
 selector = None
 selected_tile = None
+
+def drawSelector(i):
+    global hitbox_heights, hitbox_widths, hitbox_x, hitbox_y, selector_width, selector_height, selector, normal, hitbox_tiles, selected_tile
+    if selector in normal:
+        normal.remove(selector)
+    selector_width = hitbox_widths[i]
+    selector_height = hitbox_heights[i]
+    selector = RoundRect(hitbox_x[i],hitbox_y[i],selector_width,selector_height,1,fill=None,outline=0xFF00FF,stroke=1)
+    normal.insert(0, selector)
+
 def moveSelector(x, y):
     global hitbox_heights, hitbox_widths, hitbox_x, hitbox_y, selector_width, selector_height, selector, normal, hitbox_tiles, selected_tile
     selected_tile = None
@@ -344,40 +358,101 @@ for i in range(6):
     hitboxes.append(tile)
 
 def setTimeUp(tile, swipe_mag):
-    global mins, hr, day, day_threshold, day_threshold_index, day_threshold_list, month, apm, day, month, weekday, weekday_index, weekday_list
+    global mins, hr, day, day_threshold, day_threshold_index, day_threshold_list, month, apm, day, month, weekday, \
+        weekday_index, weekday_list, selector, selector_height, selector_width, hitbox_heights, hitbox_widths, hitbox_x, hitbox_y
     swipe_mag = int(round(swipe_mag))
-    day_threshold_index = month - 1
-    day_threshold = day_threshold_list[day_threshold_index]
     if tile == min_tile:
         mins += (swipe_mag // 2)
         while mins > 59:
             mins -= 60
     elif tile == hr_tile:
         hr += (swipe_mag // 20)
-        if hr > 12:
+        while hr > 12:
             hr -= 12
     elif tile == apm_tile:
         apm = 'AM'
     elif tile == day_tile:
         day += (swipe_mag // 8)
-        if day > day_threshold:
-            day -= day_threshold
-    elif tile == month_tile:
-        month += (swipe_mag // 20)
-        if month > 12:
-            month -= 1
         day_threshold_index = month - 1
         day_threshold = day_threshold_list[day_threshold_index]
-        if day > day_threshold:
+        while day > day_threshold:
             day -= day_threshold
+        if day >= 10:
+            hitbox_widths[3] = 44
+            drawSelector(3)
+        else:
+            hitbox_widths[3] = 29
+            drawSelector(3)
+    elif tile == month_tile:
+        month += (swipe_mag // 20)
+        while month > 12:
+            month -= 12
+        day_threshold_index = month - 1
+        day_threshold = day_threshold_list[day_threshold_index]
+        while day > day_threshold:
+            day -= day_threshold
+        if month >= 10:
+            hitbox_widths[4] = 59
+            hitbox_x[3] = 61
+            drawSelector(4)
+        else:
+            hitbox_widths[4] = 44
+            hitbox_x[3] = 46
+            drawSelector(4)
     elif tile == weekday_tile:
         weekday_index += (swipe_mag // 40)
-        if weekday_index > 6:
+        while weekday_index > 6:
             weekday_index -= 7
         weekday = weekday_list[weekday_index]
 
 
-
+def setTimeDown(tile, swipe_mag):
+    global mins, hr, day, day_threshold, day_threshold_index, day_threshold_list, month, apm, day, month, weekday, \
+        weekday_index, weekday_list, selector, selector_height, selector_width, hitbox_heights, hitbox_widths, hitbox_x, hitbox_y
+    swipe_mag = int(round(swipe_mag))
+    if tile == min_tile:
+        mins -= (swipe_mag // 2)
+        while mins < 0:
+            mins += 60
+    elif tile == hr_tile:
+        hr -= (swipe_mag // 20)
+        while hr < 1:
+            hr += 12
+    elif tile == apm_tile:
+        apm = 'PM'
+    elif tile == day_tile:
+        day -= (swipe_mag // 8)
+        day_threshold_index = month - 1
+        day_threshold = day_threshold_list[day_threshold_index]
+        while day < 1:
+            day += day_threshold
+        if day >= 10:
+            hitbox_widths[3] = 44
+            drawSelector(3)
+        else:
+            hitbox_widths[3] = 29
+            drawSelector(3)
+    elif tile == month_tile:
+        month -= (swipe_mag // 20)
+        while month < 1:
+            month += 12
+        day_threshold_index = month - 1
+        day_threshold = day_threshold_list[day_threshold_index]
+        while day < 1:
+            day += day_threshold
+        if month >= 10:
+            hitbox_widths[4] = 59
+            hitbox_x[3] = 61
+            drawSelector(4)
+        else:
+            hitbox_widths[4] = 44
+            hitbox_x[3] = 46
+            drawSelector(4)
+    elif tile == weekday_tile:
+        weekday_index -= (swipe_mag // 40)
+        while weekday_index < 0:
+            weekday_index += 7
+        weekday = weekday_list[weekday_index]
 
 
 ### END SET TIME ###
@@ -398,6 +473,8 @@ while True:
         print('swpied')
     elif event == 'swipe right':
         screen = 'normal'
+        if selector in normal:
+            normal.remove(selector)
         print('swpied back')
     if screen == 'normal':
         updateTime()
@@ -410,6 +487,7 @@ while True:
             setTimeUp(selected_tile, event_mag)
             updateTimeLabels()
         elif event == 'swipe down' and selected_tile != None:
+            setTimeDown(selected_tile, event_mag)
             updateTimeLabels()
 
     time.sleep(0.0001)
