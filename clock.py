@@ -148,11 +148,27 @@ timer.append(month_tile)
 timer.append(slash)
 timer.append(weekday_tile)
 
-hitbox_x[]
-hitbox_y[]
-hitbox_widths = [70,70,20,10,10,70]
-hitbox_heights = [60,60,20,10,10,20]
-hitboxs = [min_tile, hr_tile, apm_tile, day_tile, month_tile, weekday_tile]
+min_test = None
+hr_test = None
+apm_test = None
+day_test = None
+month_test = None
+weekday_test = None
+
+hitbox_x = [121, 40, 165, 46, 0, 140]
+hitbox_y = [90, 90, 151, 45, 45, 45]
+hitbox_x2 = [210, 119, 215, 75, 44, 240]
+hitbox_y2 = [150, 150, 175, 80, 80, 80]
+
+hitbox_widths = []
+hitbox_heights = []
+
+for i in range(0,6):
+    hitbox_widths.append(hitbox_x2[i] - hitbox_x[i])
+    hitbox_heights.append(hitbox_y2[i] - hitbox_y[i])
+
+hitbox_tiles = [min_tile, hr_tile, apm_tile, day_tile, month_tile, weekday_tile]
+hitbox_tests = [min_test, hr_test, apm_test, day_test, month_test, weekday_test]
 
 def updateTime():
     global mins, display_min, hr, display_hr, new_day, day, display_day, apm, weekday, weekday_index, weekday_list, \
@@ -169,10 +185,6 @@ def updateTime():
         new_time = True
     if hr > 12:
         hr = 1
-    display_min = str(mins)
-    if len(display_min) == 1:
-        display_min = '0' + display_min
-    display_hr = str(hr)
     if hr == 12 and new_time == True:
         if apm == 'AM':
             apm = 'PM'
@@ -185,7 +197,7 @@ def updateTime():
         weekday_index += 1
         if weekday_index > 6:
             weekday_index = 0
-        weekday = weekday_list[weekday_index]
+
     if day > day_threshold:
         day = 1
         month += 1
@@ -203,30 +215,41 @@ def updateTimeLabels():
     global mins, display_min, hr, display_hr, new_day, day, display_day, apm, weekday, weekday_index, weekday_list, \
         weekday_tile, new_day, new_time, day, day_threshold, day_threshold, day_threshold_index, \
         day_threshold_list, month, display_month, year, current_time, last_time
-    display_day = str(day)
-    display_month = str(month)
-    min_tile.text = display_min
-    hr_tile.text = display_hr
+
+    display_min = str(mins)
+    if len(display_min) == 1:
+        display_min = '0' + display_min
+
+    display_hr = str(hr)
     if len(display_hr) == 2:
         hr_tile.x = 45
     else:
         hr_tile.x = 80
-    apm_tile.text = apm
-    day_tile.text = display_day
-    month_tile.text = display_month
+
+    display_day = str(day)
+    display_month = str(month)
     if len(display_month) == 1:
         slash.x = 40
         day_tile.x = 55
     else:
         slash.x = 55
         day_tile.x = 70
-    weekday_tile.text = weekday
+
+    weekday = weekday_list[weekday_index]
     if len(weekday) == 3:
         weekday_tile.x = 183
     elif len(weekday) == 4:
         weekday_tile.x = 171
     else:
         weekday_tile.x = 160
+
+    min_tile.text = display_min
+    hr_tile.text = display_hr
+    apm_tile.text = apm
+    day_tile.text = display_day
+    month_tile.text = display_month
+    weekday_tile.text = weekday
+
 
 ### END TIME ###
 
@@ -241,17 +264,20 @@ initial_x = 120
 initial_y = 120
 magnitude = 0
 
+x = None
+y = None
+magnitude = 0
+
 def checkevent():
     global hold_counter, swipe_x, swipe_y, event, comp_x, comp_y, x, y, initial_x, initial_y, pointer, ogx, ogy, magnitude
     event = 'NOTHING'
     result = None
-    x = None
-    y = None
     if ctp.touched:
         for touch_id, touch in enumerate(ctp.touches):
             x = touch["x"]
             y = touch["y"]
             event = events[touch["event_id"]]
+            #print(f"touch_id: {touch_id}, x: {x}, y: {y}, event: {event}")
             x -= 120
             y -= 120
             y *= -1
@@ -282,39 +308,83 @@ def checkevent():
         elif 15 < hold_counter <= 300000:
            result = 'held'
         hold_counter = 0
-    return result, x, y
+    if result != None:
+        print(result, x, y, 'resultttt')
+    return result, x, y, magnitude
 
 ### END EVENTS ###
 
 ### SET TIME ###
 
-selector = RoundRect(0,0,100,100,5,fill=None,outline=0xFFFFFF,stroke=10)
-normal.insert(0, selector)
-
+selector = None
+selected_tile = None
 def moveSelector(x, y):
-    global hitbox_heights, hitbox_widths, hitboxs, selector_width, selector_height, selector, normal
-    
+    global hitbox_heights, hitbox_widths, hitbox_x, hitbox_y, selector_width, selector_height, selector, normal, hitbox_tiles, selected_tile
+    selected_tile = None
     if x != None and y != None:
         x += 120
+        y *= -1
         y += 120
-        print('run', x, y)
         for i in range(0,6):
-            tile = hitboxs[i]
-            
             if selector in normal:
                 normal.remove(selector)
             if (hitbox_x[i] <= x) and (x <= (hitbox_x[i] + hitbox_widths[i])) and (hitbox_y[i] <= y) and (y <= (hitbox_y[i] + hitbox_heights[i])):
                 selector_width = hitbox_widths[i]
                 selector_height = hitbox_heights[i]
-                selector = RoundRect(tile.x,tile.y,selector_width,selector_height,1,fill=None,outline=0xFFFFFF,stroke=10)
+                selector = RoundRect(hitbox_x[i],hitbox_y[i],selector_width,selector_height,1,fill=None,outline=0xFF00FF,stroke=1)
                 normal.insert(0, selector)
-                print('good')
-                print(tile.text)
+                selected_tile = hitbox_tiles[i]
+                print('good', x, y)
                 break
 
+hitboxes = displayio.Group()
+for i in range(6):
+    tile = hitbox_tests[i]
+    tile = RoundRect(hitbox_x[i], hitbox_y[i], hitbox_widths[i], hitbox_heights[i], 1, fill=None, outline=0xFFFFFF, stroke=3)
+    hitboxes.append(tile)
 
-group.append(background)
+def setTimeUp(tile, swipe_mag):
+    global mins, hr, day, day_threshold, day_threshold_index, day_threshold_list, month, apm, day, month, weekday, weekday_index, weekday_list
+    swipe_mag = int(round(swipe_mag))
+    day_threshold_index = month - 1
+    day_threshold = day_threshold_list[day_threshold_index]
+    if tile == min_tile:
+        mins += (swipe_mag // 2)
+        while mins > 59:
+            mins -= 60
+    elif tile == hr_tile:
+        hr += (swipe_mag // 20)
+        if hr > 12:
+            hr -= 12
+    elif tile == apm_tile:
+        apm = 'AM'
+    elif tile == day_tile:
+        day += (swipe_mag // 8)
+        if day > day_threshold:
+            day -= day_threshold
+    elif tile == month_tile:
+        month += (swipe_mag // 20)
+        if month > 12:
+            month -= 1
+        day_threshold_index = month - 1
+        day_threshold = day_threshold_list[day_threshold_index]
+        if day > day_threshold:
+            day -= day_threshold
+    elif tile == weekday_tile:
+        weekday_index += (swipe_mag // 40)
+        if weekday_index > 6:
+            weekday_index -= 7
+        weekday = weekday_list[weekday_index]
+
+
+
+
+
+### END SET TIME ###
+
 normal.append(timer)
+group.append(background)
+#group.append(hitboxes)
 group.append(normal)
 
 display.root_group = group
@@ -322,18 +392,26 @@ display.root_group = group
 clicker = 0
 
 while True:
-    event, x, y = checkevent()
+    event, eventx, eventy, event_mag = checkevent()
     if event == 'swipe left':
         screen = 'set time'
-
+        print('swpied')
+    elif event == 'swipe right':
+        screen = 'normal'
+        print('swpied back')
     if screen == 'normal':
         updateTime()
         updateTimeLabels()
     elif screen == 'set time':
         updateTimeLabels()
         if event == 'clicked':
-            moveSelector(x, y)
-        
+            moveSelector(eventx, eventy)
+        elif event == 'swipe up' and selected_tile != None:
+            setTimeUp(selected_tile, event_mag)
+            updateTimeLabels()
+        elif event == 'swipe down' and selected_tile != None:
+            updateTimeLabels()
+
     time.sleep(0.0001)
 
 
