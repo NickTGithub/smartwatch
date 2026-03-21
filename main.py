@@ -239,7 +239,7 @@ def updateTimeLabels():
         hitbox_x2[4] = 69
 
 
-        
+
     weekday = weekday_list[weekday_index]
     if len(weekday) == 3:
         weekday_tile.x = 183
@@ -329,7 +329,7 @@ def drawSelector(i):
         normal.remove(selector)
     selector_width = hitbox_widths[i]
     selector_height = hitbox_heights[i]
-    selector = RoundRect(hitbox_x[i],hitbox_y[i],selector_width,selector_height,1,fill=None,outline=0xFF00FF,stroke=1)
+    selector = RoundRect(hitbox_x[i],hitbox_y[i],selector_width,selector_height,1,fill=None,outline=0xFF00FF,stroke=5)
     normal.insert(0, selector)
 
 def moveSelector(x, y):
@@ -345,7 +345,7 @@ def moveSelector(x, y):
             if (hitbox_x[i] <= x) and (x <= (hitbox_x[i] + hitbox_widths[i])) and (hitbox_y[i] <= y) and (y <= (hitbox_y[i] + hitbox_heights[i])):
                 selector_width = hitbox_widths[i]
                 selector_height = hitbox_heights[i]
-                selector = RoundRect(hitbox_x[i],hitbox_y[i],selector_width,selector_height,1,fill=None,outline=0xFF00FF,stroke=1)
+                selector = RoundRect(hitbox_x[i],hitbox_y[i],selector_width,selector_height,1,fill=None,outline=0xFF00FF,stroke=5)
                 normal.insert(0, selector)
                 selected_tile = hitbox_tiles[i]
                 print('good', x, y)
@@ -491,5 +491,3 @@ while True:
             updateTimeLabels()
 
     time.sleep(0.0001)
-
-
